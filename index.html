@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shantanu Kapil's Portfolio</title>
+  <style>
+    :root{
+      --sky: #c9f1ff;
+      --sun: #ffd166;
+      --hills1:#9bd57b;
+      --hills2:#6cbc5b;
+      --ground:#7a5c3a;
+      --grass:#4caf50;
+      --text:#0f172a;
+      --muted:#475569;
+      --card:#ffffffcc;
+      --primary:#6366f1;
+      --accent:#f97316;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;overflow:hidden;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    body{color:var(--text);background:linear-gradient(#b9ecff, var(--sky));}
+
+    /* UI: Top bar */
+    .topbar{position:fixed;inset:0 0 auto 0;height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;background:linear-gradient(180deg,#ffffffb3,#ffffff40);backdrop-filter:blur(8px);z-index:20}
+    .logo{font-weight:800;letter-spacing:.3px}
+    .pill{padding:6px 10px;border-radius:999px;background:#fff;border:1px solid #e2e8f0;font-size:12px;color:var(--muted)}
+    .nav{margin-left:auto;display:flex;gap:8px}
+    .nav a{font-size:13px;text-decoration:none;color:var(--muted);padding:6px 10px;border-radius:8px}
+    .nav a:hover{background:#ffffffaa}
+    .progress{position:fixed;left:0;right:0;top:56px;height:3px;background:#e2e8f0;z-index:19}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent));}
+
+    /* WORLD: horizontal scroll container */
+    .viewport{position:fixed;inset:56px 0 0 0;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth}
+    .world{position:relative;display:flex;height:100%;width:600vw}
+
+    /* Parallax layers that span the WHOLE world width */
+    .layer{position:absolute;top:0;left:0;height:100%;width:600vw;pointer-events:none}
+    .sky{background:linear-gradient(#b9ecff, var(--sky));z-index:0}
+    .sun{position:absolute;width:140px;height:140px;left:8%;top:12%;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff 0 20%, var(--sun) 21% 60%, #ffb703 61% 100%);box-shadow:0 0 80px #ffd166aa}
+    .hills.back{background:linear-gradient(to top, #a1e3ff 0 30%, transparent 30%),
+                 radial-gradient(1000px 200px at 20% 100%, var(--hills1) 0 60%, transparent 61%),
+                 radial-gradient(900px 260px at 70% 100%, var(--hills2) 0 60%, transparent 61%);
+                 transform:translateZ(0);opacity:.9}
+    .hills.front{background:
+                 radial-gradient(1200px 280px at 35% 100%, #4aa54a 0 60%, transparent 61%),
+                 radial-gradient(1000px 260px at 85% 100%, #5ab55a 0 60%, transparent 61%);
+                 opacity:.95}
+    .ground{position:absolute;bottom:0;left:0;height:120px;width:600vw;background:linear-gradient(#2f5d31 0 24px,#27632a 25px 26px,var(--ground) 27px 100%);box-shadow:0 -6px 0 #1f7a1f inset}
+    .tuft{position:absolute;bottom:100px;width:60px;height:20px;background:var(--grass);border-radius:10px;filter:brightness(1.05)}
+
+    /* Track */
+    .track{position:absolute;bottom:114px;left:0;height:10px;width:600vw;background:repeating-linear-gradient(90deg,#eab308 0 40px,#b45309 40px 44px,#eab308 44px 84px)}
+
+    /* Sections */
+    section{position:relative;z-index:5;min-width:100vw;height:100%;padding:80px 8vw 140px;display:flex;align-items:center;justify-content:center}
+    .card{max-width:920px;background:var(--card);border:1px solid #e2e8f0;border-radius:24px;box-shadow:0 10px 30px #00000014;padding:28px}
+    h1,h2{margin:0 0 8px}
+    h1{font-size:44px;letter-spacing:.5px}
+    h2{font-size:28px;color:#111827}
+    p{line-height:1.6;color:#1f2937}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .chip{font-size:12px;border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:6px 10px}
+    .grid{display:grid;gap:14px;margin-top:12px}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .item{padding:14px;border:1px dashed #cbd5e1;border-radius:14px;background:#fff}
+    .item h3{margin:0 0 4px;font-size:16px}
+    .item .meta{font-size:12px;color:#64748b}
+
+    /* Avatar */
+    .avatar{position:fixed;bottom:125px;left:50%;transform:translateX(-50%);width:90px;height:120px;z-index:10;pointer-events:none}
+    .body{position:absolute;left:20px;bottom:20px;width:50px;height:70px;background:#334155;border-radius:12px 12px 8px 8px;box-shadow:inset 0 -8px 0 #1f2937}
+    .head{position:absolute;left:26px;bottom:88px;width:38px;height:38px;border-radius:50%;background:#fde68a;border:3px solid #111827}
+    .eye{position:absolute;left:10px;top:14px;width:6px;height:6px;border-radius:50%;background:#0f172a}
+    .cap{position:absolute;left:20px;bottom:112px;width:46px;height:18px;background:var(--primary);border-radius:14px 14px 0 0;transform:skewX(-10deg)}
+    .arm{position:absolute;bottom:50px;width:10px;height:28px;background:#475569;border-radius:10px;transform-origin:top center}
+    .arm.left{left:12px}
+    .arm.right{right:12px}
+    .leg{position:absolute;bottom:20px;width:12px;height:34px;background:#1e293b;border-radius:10px;transform-origin:top center}
+    .leg.left{left:26px}
+    .leg.right{left:50px}
+
+    .hint{position:fixed;right:16px;bottom:16px;background:#0f172a;color:#fff;padding:10px 12px;border-radius:12px;font-size:12px;opacity:.9;z-index:30}
+    .cta{display:inline-block;margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--primary);color:#fff;text-decoration:none}
+    .cta:hover{filter:brightness(1.05)}
+
+    @media (max-width:900px){
+      h1{font-size:34px}
+      .grid.cols-2{grid-template-columns:1fr}
+      .avatar{bottom:132px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">Shantanu's • Portfolio</div>
+    <div class="nav">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <!-- Avatar -->
+  <div class="avatar" aria-hidden="true">
+    <div class="cap"></div>
+    <div class="head"><div class="eye"></div></div>
+    <div class="body"></div>
+    <div class="arm left" id="armL"></div>
+    <div class="arm right" id="armR"></div>
+    <div class="leg left" id="legL"></div>
+    <div class="leg right" id="legR"></div>
+  </div>
+
+  <!-- World viewport -->
+  <div class="viewport" id="viewport">
+    <!-- Parallax background layers spanning all sections -->
+    <div class="layer sky"></div>
+    <div class="layer hills back" id="hillBack"></div>
+    <div class="layer hills front" id="hillFront"></div>
+    <div class="sun"></div>
+    <div class="track"></div>
+    <div class="ground"></div>
+
+    <!-- The world/sections -->
+    <div class="world" id="world">
+      <section id="about">
+        <div class="card">
+          <h1>Hi, I'm <span style="color:var(--primary)">Shantanu Kapil</span> — I turn ideas into playful products.</h1>
+          <p>
+            Full‑stack + AI engineer. I like building AI Agents, delightful UX, clean APIs, and making complex things feel simple.
+            I build with TypeScript, Python, and C.
+          </p>
+          <div class="chips">
+            <span class="chip">TypeScript</span>
+            <span class="chip">Python</span>
+            <span class="chip">LLM Agents · LangChain</span>
+            <span class="chip">Angular · Vue · React</span>
+            <span class="chip">Node · SQL · Express</span>
+          </div>
+          <a class="cta" href="#projects">See projects ↓</a>
+        </div>
+      </section>
+
+      <section id="skills">
+        <div class="card">
+          <h2>Skills</h2>
+          <div class="grid cols-2">
+            <div class="item">
+              <h3>Frontend</h3>
+              <div class="meta">Angular, React, Vue 3, Tailwind</div>
+            </div>
+            <div class="item">
+              <h3>Backend</h3>
+              <div class="meta">Node/Express, Python/FastAPI, REST/GraphQL</div>
+            </div>
+            <div class="item">
+              <h3>AI/Agents</h3>
+              <div class="meta">LangChain, MCP servers, RAG, OpenAI/Ollama</div>
+            </div>
+            <div class="item">
+              <h3>Data/Infra</h3>
+              <div class="meta">Postgres, MongoDB, Redis, Docker</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="experience">
+        <div class="card">
+          <h2>Experience</h2>
+          <div class="grid">
+            <div class="item">
+              <h3>Graduate Assistant · State University of New York, Binghamton</h3>
+              <div class="meta">Feb 2025 — Present · Binghamton, NY</div>
+              <p>Built an MCP server integrating LangChain with Splunk, PagerDuty, BookStack, and Dynatrace APIs, streamlining on-call
+                incident response with historical search, recurring issue detection, contextual docs, and LLM-based postmortem reports.</p>
+            </div>
+            <div class="item">
+              <h3>Software Engineer Intern · Rocket Mortgage</h3>
+              <div class="meta">May 2025 — Aug 2025 · Detroit, MI </div>
+              <p>Built an MCP server integrating LangChain with Splunk, PagerDuty, BookStack, and Dynatrace APIs, streamlining on-call
+                incident response with historical search, recurring issue detection, contextual docs, and LLM-based postmortem reports.</p>
+            </div>
+            <div class="item">
+              <h3>Software Engineer · Kiwitech</h3>
+              <div class="meta">2021 — 2024 · INDIA</div>
+              <p>Built the BAR-I bar inventory system with a C++ backend and a React.js frontend, integrating barcode scanners and
+                weight scales to monitor bottle-level inventory and track sales and also contributed to the Electron.js desktop app.</p>
+               <p> Developed jQuery extension for encrypted credential sharing, used by 2,000+ users.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="card">
+          <h2>Projects</h2>
+          <div class="grid cols-2">
+            <div class="item">
+              <h3>Gmail - Mcp</h3>
+              <div class="meta">LangChain · Gmail APIs · MCP</div>
+              <p>LLM assistant that can securely read, search, and summarize emails, draft and send responses, and organize inboxes.</p>
+            </div>
+            <div class="item">
+              <h3>Resume Parser</h3>
+              <div class="meta">Node · Ollama </div>
+              <p>Uploads resumes and extracts structured data. HTML preview + CSV export for recruiters.</p>
+            </div>
+            <div class="item">
+              <h3>Transcript Reader</h3>
+              <div class="meta">Node · OCR · OpenAI APIs</div>
+              <p>Parses PDFs/images to course tables; outputs credits, GPA, semesters, with downloadable sheets.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="education">
+        <div class="card">
+          <h2>Education</h2>
+          <p><strong>M.S. Computer Science</strong> — State University of New York (2026)
+          <br/>Focus: DSA, Programming for the web , Design Patterns, Software Management, Cloud Computing and Data Mining.</p>
+          <p><strong>B.Tech. Computer Science</strong> — Jaypee University of Engineering and Technology (2020)</p>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="card">
+          <h2>Let’s build something fun</h2>
+          <p>DM me on <a href="https://www.linkedin.com/in/shantanurajkapil/" target="_blank">LinkedIn</a> or email shantanukapil17@gmail.com</p>
+          <div class="chips">
+            <span class="chip">Open to SDE/AI roles</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="hint">Scroll → (or swipe) to move / Use nav to jump</div>
+
+  <script>
+    const viewport = document.getElementById('viewport');
+    const world = document.getElementById('world');
+    const bar = document.getElementById('bar');
+    const hillBack = document.getElementById('hillBack');
+    const hillFront = document.getElementById('hillFront');
+
+    // Simple parallax on horizontal scroll
+    function onScroll(){
+      const max = world.scrollWidth - viewport.clientWidth;
+      const x = viewport.scrollLeft;
+      const pct = max > 0 ? x / max : 0;
+      bar.style.width = (pct*100).toFixed(2) + '%';
+
+      // Parallax transforms
+      hillBack.style.transform = `translateX(${-x*0.25}px)`;
+      hillFront.style.transform = `translateX(${-x*0.5}px)`;
+
+      // Limb swing animation
+      const swing = Math.sin(x/40);
+      document.getElementById('armL').style.transform = `rotate(${swing*25}deg)`;
+      document.getElementById('armR').style.transform = `rotate(${-swing*25}deg)`;
+      document.getElementById('legL').style.transform = `rotate(${-swing*25}deg)`;
+      document.getElementById('legR').style.transform = `rotate(${swing*25}deg)`;
+    }
+
+    viewport.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+
+    // Keyboard navigation (arrow keys)
+    window.addEventListener('keydown', (e)=>{
+      const step = 80;
+      if(e.key==='ArrowRight') viewport.scrollBy({left: step, behavior:'smooth'});
+      if(e.key==='ArrowLeft') viewport.scrollBy({left: -step, behavior:'smooth'});
+    });
+
+    // Anchor links should scroll the horizontal viewport
+    document.querySelectorAll('.nav a').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if(!el) return;
+        const rect = el.getBoundingClientRect();
+        const delta = rect.left - viewport.getBoundingClientRect().left;
+        viewport.scrollBy({left: delta, behavior:'smooth'});
+      });
+    });
+
+    // Place random grass tufts for fun visuals across the whole world
+    function sprout(){
+      for(let i=0;i<60;i++){
+        const t=document.createElement('div');
+        t.className='tuft';
+        t.style.left = (Math.random()*600)+'vw';
+        t.style.transform=`scale(${0.6+Math.random()*1.2})`;
+        viewport.appendChild(t);
+      }
+    }
+    sprout();
+  </script>
+</body>
+</html>
